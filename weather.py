@@ -17,7 +17,7 @@ def get_city_id():
         json_response = json.loads(response.text)
         return json_response['list'][0]['id']
     except Exception as ex:
-        logging.error(ex)
+        logging.error('Exception %s', ex)
         pass
 
 def get_weather(city_id):
@@ -27,7 +27,7 @@ def get_weather(city_id):
         json_response = json.loads(response.text)
         return float(json_response['main']['temp'])
     except Exception as ex:
-        logging.error(ex)
+        logging.error('Exception %s', ex)
         pass
 
 def push_temp(city_temp):
@@ -37,13 +37,14 @@ def push_temp(city_temp):
     metric.set(city_temp)
     push_to_gateway(PUSH_GATEWAY, job=job, registry=registry)
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO, format=u'%(levelname)-8s [%(asctime)s] %(message)s')
     while True:
         try:
             city_id = get_city_id()
             city_temp = get_weather(city_id)
             push_temp(city_temp)
-            logging.info("Pushed %s", city_temp)
+            logging.info('Pushed %s', city_temp)
             time.sleep(10)
         except Exception as ex:
-            logging.error(ex)
+            logging.error('Exception: %s', ex)
             continue
